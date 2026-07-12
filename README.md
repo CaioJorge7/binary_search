@@ -184,7 +184,7 @@ Mesmo assim, toda a estrutura do algoritmo, suas funções auxiliares e suas pri
 
 # Tecnologias
 
-* Coq 8.20
+* Coq 8.19.2
 * CoqIDE
 
 ---
