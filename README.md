@@ -1,6 +1,6 @@
 # Projeto de Lógica Computacional I
 
-## Verificação Formal de um Algoritmo de Inserção Ordenada em Coq
+## Adaptação da Proposta de Busca Binária: Verificação Formal de Inserção Ordenada em Coq
 
 ### Universidade de Brasília (UnB)
 
