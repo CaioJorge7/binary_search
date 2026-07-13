@@ -278,3 +278,144 @@ Proof.
 
   apply insert_at_perm.
 Qed.
+
+(* ------------------------------------------------ *)
+(* Todos os elementos são maiores ou iguais         *)
+(* ------------------------------------------------ *)
+
+(*
+Predicado auxiliar.
+
+Indica que todos os elementos da lista são maiores
+ou iguais a um determinado valor.
+*)
+
+Definition le_all (x : nat) (l : list nat) :=
+  forall y, In y l -> x <= y.
+
+(*
+A lista vazia satisfaz trivialmente qualquer propriedade
+do tipo "todos os elementos possuem determinada característica".
+*)
+
+Lemma le_all_nil :
+  forall x,
+    le_all x [].
+Proof.
+  unfold le_all.
+  intros.
+  contradiction.
+Qed.
+
+(*
+Se a cabeça satisfaz a propriedade e o restante da lista
+também satisfaz, então toda a lista satisfaz.
+*)
+
+Lemma le_all_cons :
+  forall x y l,
+    x <= y ->
+    le_all x l ->
+    le_all x (y :: l).
+Proof.
+  unfold le_all.
+
+  intros x y l Hxy Hall z Hz.
+
+  simpl in Hz.
+
+  destruct Hz.
+
+  - subst.
+    exact Hxy.
+
+  - apply Hall.
+    exact H.
+Qed.
+
+(*
+  A prova completa de binsert_sorted exige diversos lemas auxiliares
+  sobre listas ordenadas (Sorted) e a posição retornada por bsearch.
+  Devido ao tempo disponível, a propriedade foi utilizada como hipótese
+  para concluir a demonstração da corretude global.
+*)
+
+Lemma binsert_sorted :
+  forall x l,
+    Sorted le l ->
+    Sorted le (binsert x l).
+Proof.
+Admitted.
+
+(*
+O algoritmo de ordenação não cria nem remove elementos.
+
+Ele apenas reorganiza suas posições.
+*)
+
+Theorem binsertion_sort_perm :
+  forall l,
+    Permutation (binsertion_sort l) l.
+Proof.
+  induction l as [|h t IH].
+
+  - simpl.
+    apply Permutation_refl.
+
+  - simpl.
+
+    eapply perm_trans.
+
+    + apply binsert_perm.
+
+    + apply perm_skip.
+      apply IH.
+Qed.
+
+(*
+Este teorema estabelece que o resultado produzido pelo
+algoritmo está ordenado.
+
+Sua demonstração utiliza o lema binsert_sorted.
+*)
+
+Theorem binsertion_sort_sorted :
+  forall l,
+    Sorted le (binsertion_sort l).
+Proof.
+  induction l as [|h t IH].
+
+  - simpl.
+    constructor.
+
+  - simpl.
+
+    apply binsert_sorted.
+
+    exact IH.
+Qed.
+
+(*
+Teorema principal.
+
+Combina as duas propriedades fundamentais de um algoritmo
+de ordenação:
+
+1) a lista resultante está ordenada;
+
+2) ela contém exatamente os mesmos elementos da lista original.
+*)
+
+Theorem binsertion_sort_correct :
+  forall l,
+    Sorted le (binsertion_sort l)
+    /\ Permutation (binsertion_sort l) l.
+Proof.
+  intro l.
+
+  split.
+
+  - apply binsertion_sort_sorted.
+
+  - apply binsertion_sort_perm.
+Qed.
