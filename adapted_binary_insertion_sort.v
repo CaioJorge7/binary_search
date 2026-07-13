@@ -141,3 +141,140 @@ Fixpoint binsertion_sort (l : list nat) :=
   end.
 
 Compute binsertion_sort [5;2;1;4;3].
+
+(* ------------------------------------------------ *)
+(* Propriedades da busca                            *)
+(* ------------------------------------------------ *)
+
+(*
+Este lema demonstra que a posição retornada por bsearch
+nunca ultrapassa o tamanho da lista.
+
+Assim garantimos que insert_at sempre receberá um índice válido.
+*)
+
+Lemma bsearch_valid_pos :
+  forall l x,
+    bsearch x l <= length l.
+Proof.
+  induction l as [|h t IH].
+  - intros x.
+    simpl.
+    lia.
+
+  - intros x.
+    simpl.
+
+    destruct (x <=? h).
+
+    + lia.
+
+    + specialize (IH x).
+      lia.
+Qed.
+
+(* ------------------------------------------------ *)
+(* Inserção sempre aumenta o tamanho em 1           *)
+(* ------------------------------------------------ *)
+
+(*
+Inserir um elemento em qualquer posição aumenta o tamanho
+da lista exatamente em uma unidade.
+
+Essa propriedade será utilizada nas provas posteriores.
+*)
+
+Lemma insert_at_length :
+  forall l i x,
+    length (insert_at i x l) = S (length l).
+Proof.
+  induction l as [|h t IH].
+
+  - intros i x.
+    destruct i.
+    + simpl. reflexivity.
+    + simpl. reflexivity.
+
+  - intros i x.
+    destruct i.
+    + simpl. reflexivity.
+    + simpl.
+      rewrite IH.
+      reflexivity.
+Qed.
+
+(* ------------------------------------------------ *)
+(* Inserir na posição 0                             *)
+(* ------------------------------------------------ *)
+
+(*
+Caso especial da inserção.
+
+Inserir na posição zero é equivalente a adicionar o elemento
+na cabeça da lista.
+*)
+
+Lemma insert_at_0 :
+  forall l x,
+    insert_at 0 x l = x :: l.
+Proof.
+  reflexivity.
+Qed.
+
+(*
+A inserção não altera o conjunto de elementos.
+
+Ela apenas modifica sua posição.
+
+Por isso a lista resultante é uma permutação da lista
+original acrescida do novo elemento.
+*)
+
+Lemma insert_at_perm :
+  forall l i x,
+    Permutation (insert_at i x l) (x :: l).
+Proof.
+  induction l as [|h t IH].
+
+  - intros i x.
+    destruct i.
+    + simpl.
+      apply Permutation_refl.
+    + simpl.
+      apply Permutation_refl.
+
+  - intros i x.
+    destruct i.
+
+    + simpl.
+      apply Permutation_refl.
+
+    + simpl.
+
+      eapply perm_trans.
+
+      * apply perm_skip.
+        apply IH.
+
+      * apply perm_swap.
+Qed.
+
+(* ------------------------------------------------ *)
+(* binsert preserva os elementos                    *)
+(* ------------------------------------------------ *)
+
+(*
+Como binsert utiliza insert_at, a propriedade de preservação
+dos elementos é herdada imediatamente.
+*)
+
+Lemma binsert_perm :
+  forall l x,
+    Permutation (binsert x l) (x :: l).
+Proof.
+  intros l x.
+
+  unfold binsert.
+
+  apply insert_at_perm.
+Qed.
